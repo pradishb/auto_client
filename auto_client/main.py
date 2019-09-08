@@ -4,7 +4,7 @@ import time
 
 from efficiency.efficiency import Efficiency
 from connection.connection import Connection
-from status.status import get_status, display_status
+from status import get_status, display_status
 
 
 def main(stdscr):
@@ -17,8 +17,8 @@ def main(stdscr):
         efficiency.change()
         status = get_status(connection)
         process_time = time.time() - start_time
-        stdscr.addstr('Efficiency: {:.2f}%\n'.format(efficiency.get_efficiency()))
-        stdscr.addstr('Process time: {:.5f}s\n'.format(process_time))
+        stdscr.addstr('{:<30}{:.2f}%\n'.format('Efficiency', efficiency.get_efficiency()))
+        stdscr.addstr('{:<30}{:.5f}s\n'.format('Process time', process_time))
         display_status(stdscr, status)
         stdscr.refresh()
         time.sleep(1)

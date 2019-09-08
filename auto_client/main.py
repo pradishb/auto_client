@@ -3,7 +3,7 @@ import curses
 import time
 
 from efficiency.efficiency import Efficiency
-from connection.connection import Connection, LeagueConnectionException
+from connection.connection import Connection, ClientConnectionException
 
 def main(stdscr):
     ''' Main function of the program '''
@@ -16,7 +16,7 @@ def main(stdscr):
         efficiency.change()
         try:
             lcu_status = connection.request("/lol-service-status/v1/lcu-status", "get")
-        except LeagueConnectionException:
+        except ClientConnectionException:
             client_conenction = "Not connected"
             lcu_status = "Not connected"
         process_time = time.time() - start_time

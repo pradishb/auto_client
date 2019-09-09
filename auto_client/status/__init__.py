@@ -1,6 +1,7 @@
 ''' Module to find the status of league client '''
 from requests import get
 from requests.exceptions import RequestException
+from settings import QUEUE_ID
 
 BUGGED_DESCRIPTION = (
     'RSO Server error: '
@@ -94,19 +95,39 @@ def check_missions(connection, status):
         return []
     output = []
     if mission[0]['status'] not in ('COMPLETED', 'DUMMY'):
-        return ['first_mission_available']
+        return ['first_mission_select']
     return output
+
+def check_lobby(connection, status):
+    ''' Returns if leaverbuster warning exists '''
+    if 'login_succeed' not in status or connection.url is None:
+        return []
+    try:
+        res = get(connection.url + '/lol-lobby/v2/lobby/', **connection.kwargs)
+    except RequestException:
+        return []
+    res_json = res.json()
+    if res.status_code == 404:
+        return []
+    if res_json['gameConfig']['queueId'] != QUEUE_ID:
+        return ['wrong_lobby_created']
+    if res_json['gameConfig']['queueId'] == QUEUE_ID:
+        return ['lobby_created']
+    return []
+
 
 STATUS_LIST = [
     'client_connected',
     'lcu_connected',
-    'login_succeed',
     'login_in_progress',
+    'login_succeed',
     'new_player',
     'banned',
     'possibly_bugged',
     'leaverbuster_warning',
-    'first_mission_available',
+    'first_mission_select',
+    'lobby_created',
+    'wrong_lobby_created',
 ]
 
 STATUS_FUNCTIONS = [
@@ -115,6 +136,7 @@ STATUS_FUNCTIONS = [
     check_login_session,
     is_leaverbuster_warning,
     check_missions,
+    check_lobby,
 ]
 
 def get_status(connection):
